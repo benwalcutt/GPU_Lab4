@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	Matrix N_d, P_d;
 	unsigned imageHeight, imageWidth;
 	cudaError_t cuda_ret;
-	dim3 dim_grid, dim_block;
+	//dim3 dim_grid, dim_block;
 
 	/* Read image dimensions */
     if (argc == 1) {
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
 	/* Copy mask to device constant memory */
     //INSERT CODE HERE
 
-	cudaMemcpyToSymbol(M_c, M_h, FILTER_SIZE * FILTER_SIZE);
+	cudaMemcpyToSymbol(M_c, M_h.elements, (FILTER_SIZE * FILTER_SIZE * sizeof(float)));
 
     cudaDeviceSynchronize();
     stopTime(&timer); printf("%f s\n", elapsedTime(timer));
@@ -96,12 +96,15 @@ int main(int argc, char* argv[])
     startTime(&timer);
 
     //INSERT CODE HERE
-	dim_block = (TILE_SIZE, TILE_SIZE);
-	int num_of_blocks_h = (height / TILE_SIZE + 1);
-	int num_of_blocks_w = (width / TILE_SIZE + 1);
-	dim_grid = (num_of_blocks_h, num_of_blocks_w);
+	const int TILE = TILE_SIZE;
+	dim3 dim_block(TILE, TILE);
 	
-	convolution<<<dim_grid, dim_block>>>(N_d, P_d, imageHeight, imageWidth);
+	const int num_of_blocks_h = (imageHeight / TILE_SIZE + 1);
+	const int num_of_blocks_w = (imageWidth / TILE_SIZE + 1);
+	
+	dim3 dim_grid(num_of_blocks_w, num_of_blocks_h);
+	
+	convolution<<<dim_grid, dim_block>>>(N_d, P_d);
 
 	cuda_ret = cudaDeviceSynchronize();
 	if(cuda_ret != cudaSuccess) FATAL("Unable to launch/execute kernel");
