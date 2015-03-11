@@ -81,12 +81,15 @@ int main(int argc, char* argv[])
     startTime(&timer);
 
 	/* Copy image to device global memory */
-	copyToDeviceMatrix(N_d, N_h);
+	copyToDeviceMatrix(N_d, N_h));
+
 
 	/* Copy mask to device constant memory */
     //INSERT CODE HERE
 
-	cudaMemcpyToSymbol(M_c, M_h.elements, (FILTER_SIZE * FILTER_SIZE * sizeof(float)));
+	if (cudaSuccess != cudaMemcpyToSymbol(M_c, M_h.elements, (FILTER_SIZE * FILTER_SIZE * sizeof(float)))) {
+		FATAL("Error copying to constant memory.");
+	};
 
     cudaDeviceSynchronize();
     stopTime(&timer); printf("%f s\n", elapsedTime(timer));
@@ -96,8 +99,7 @@ int main(int argc, char* argv[])
     startTime(&timer);
 
     //INSERT CODE HERE
-	const int TILE = TILE_SIZE;
-	dim3 dim_block(TILE, TILE);
+	dim3 dim_block(TILE_SIZE, TILE_SIZE);
 	
 	const int num_of_blocks_h = (imageHeight / TILE_SIZE + 1);
 	const int num_of_blocks_w = (imageWidth / TILE_SIZE + 1);

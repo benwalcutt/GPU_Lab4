@@ -1,0 +1,35 @@
+Floating Point Operation Calculations
+Input 	FLOPS		GFLOPS
+1000	81967213115	81.96721311
+2000	87912087912	87.91208791
+3000	88774906293	88.77490629
+4000	89515497370	89.51549737
+5000	90142063893	90.14206389
+6000	89878663804	89.8786638
+7000	90202864401	90.2028644
+8000	90270529493	90.27052949
+9000	90066048436	90.06604844
+10000	90358724135	90.35872413
+11000	90432131059	90.43213106
+12000	90072057646	90.07205765
+13000	90298036953	90.29803695
+
+1. The inputs were chosen to increment the size of the matrix equally among test cases so that a rate could be obtained. The kernel performs roughly N*N*50 floating point operations during its execution. The result is divided by the time it takes the kernel to process providing the FLOPS which is then transformed to GLOPS. It appears that the kernel itself executes at ~43 GFLOPS.
+
+Input	Allocate D	Copy H to D	Kernel		Copy D to H	Total Overhead	% Overhead
+1000	0.05898		0.001048	0.00061		0.002347	0.062375		99.0315%
+2000	0.059771	0.003525	0.002275	0.008967	0.072263		96.9479%
+3000	0.065223	0.007445	0.005069	0.019994	0.092662		94.8133%
+4000	0.06397		0.013292	0.008937	0.035539	0.112801		92.6588%
+5000	0.067052	0.019893	0.013867	0.055218	0.142163		91.1126%
+6000	0.067294	0.028418	0.020021	0.078883	0.174595		89.7098%
+7000	0.060737	0.038577	0.027161	0.108197	0.207511		88.4260%
+8000	0.076903	0.050943	0.035449	0.142648	0.270494		88.4132%
+9000	0.061579	0.063738	0.044967	0.180221	0.305538		87.1708%
+10000	0.06051		0.078525	0.055335	0.22184		0.360875		86.7050%
+11000	0.06009		0.0961		0.066901	0.254169	0.410359		85.9823%
+12000	0.058646	0.111965	0.079936	0.300331	0.470942		85.4893%
+13000	0.057838	0.131648	0.093579	0.353449	0.542935		85.2982%
+
+2. The overhead initially consumes a large portion of the computational time; however, it begins to decrease as the number of operations required to perform the kernel increase. Since the number of calculations grows faster than the number of elements required to move between device and host, the overhead slowly decreases with time.
+
